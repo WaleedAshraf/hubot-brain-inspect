@@ -1,12 +1,12 @@
 # Description:
 #   Displays all current environment variables
-#
-# Commands:
+
 #   hubot brain show storage - Display the contents that are persisted in the brain
 #   hubot brain show storage --key=[key] - Display the contents that are persisted with specified key in the brain
 #   hubot brain show users - Display all users that hubot knows about
 
 util = require "util"
+adminUser = process.env.ADMIN_USER || ''
 
 getArgParams = (arg) ->
     key_capture = /--key=(.*?)( |$)/.exec(arg)
@@ -20,23 +20,33 @@ getArgParams = (arg) ->
 
 module.exports = (robot) ->
   robot.respond /brain show storage(.*)$/i, (msg) ->
-    arg_params = getArgParams(msg.match[1])
+    user = msg.message.user.name
+    if adminUser == '' then adminUser = user
+    if user is adminUser
+      arg_params = getArgParams(msg.match[1])
 
-    data = robot.brain.data
+      data = robot.brain.data
 
-    if keys = arg_params.keys
-      for key in keys
-        data = data[key]
+      if keys = arg_params.keys
+        for key in keys
+          data = data[key]
 
-    output = util.inspect(data, false, null)
-    msg.send output
+      output = util.inspect(data, false, null)
+      msg.send output
+    else
+      return
 
   robot.respond /brain show users$/i, (msg) ->
-    response = ""
+    user = msg.message.user.name
+    if adminUser == '' then adminUser = user
+    if user is adminUser
+      response = ""
 
-    for own key, user of robot.brain.data.users
-      response += "#{user.id} #{user.name}"
-      response += " <#{user.email_address}>" if user.email_address
-      response += "\n"
+      for own key, user of robot.brain.data.users
+        response += "#{user.id} #{user.name}"
+        response += " <#{user.email_address}>" if user.email_address
+        response += "\n"
 
-    msg.send response
+      msg.send response
+    else
+      return
