@@ -34,7 +34,7 @@ module.exports = (robot) ->
       output = util.inspect(data, false, null)
       msg.send output
     else
-      return
+      msg.send "Not Authorized!"
 
   robot.respond /brain show users$/i, (msg) ->
     user = msg.message.user.name
@@ -49,4 +49,4 @@ module.exports = (robot) ->
 
       msg.send response
     else
-      return
+      msg.send "Not Authorized!"
